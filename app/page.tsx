@@ -34,6 +34,8 @@ const emptyCompany = (): CompanyFields => ({
   contact: emptyContact(),
 });
 
+const APP_VERSION = "0.2.0";
+
 export default function Home() {
   const [token, setToken] = useState("");
   const [tokenSaved, setTokenSaved] = useState(false);
@@ -145,7 +147,7 @@ export default function Home() {
           <div className="flex items-center gap-3 mb-2">
             <div className="w-2 h-2 rounded-full bg-[var(--accent)]" />
             <span className="text-xs font-mono uppercase tracking-widest text-[var(--text-muted)]">
-              HubSpot Entity Creator
+              HubSpot Entity Creator · v{APP_VERSION}
             </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
