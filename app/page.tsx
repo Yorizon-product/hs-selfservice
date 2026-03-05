@@ -52,21 +52,36 @@ export default function Home() {
   // Fetch association labels when token is saved
   useEffect(() => {
     if (!tokenSaved) return;
+    console.log("[ui] Token saved, fetching labels...");
     setLabelsLoading(true);
+    setError(null);
     fetch("/api/labels", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
     })
-      .then((r) => r.json())
-      .then((data) => {
+      .then(async (r) => {
+        console.log("[ui] /api/labels response status:", r.status);
+        const data = await r.json();
+        console.log("[ui] /api/labels response data:", JSON.stringify(data, null, 2));
+        if (!r.ok) {
+          setError(data.error || `Labels fetch failed: ${r.status}`);
+          return;
+        }
         if (data.labels) {
           setLabels(data.labels);
+          console.log("[ui] Labels loaded:", data.labels.length, "labels");
           if (data.labels.length > 0) setAssociationLabel(data.labels[0].typeId);
         }
-        if (data.portalId) setPortalId(data.portalId);
+        if (data.portalId) {
+          setPortalId(data.portalId);
+          console.log("[ui] Portal ID:", data.portalId);
+        }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error("[ui] /api/labels fetch error:", err);
+        setError(err.message || "Failed to fetch labels");
+      })
       .finally(() => setLabelsLoading(false));
   }, [tokenSaved, token]);
 
@@ -75,22 +90,31 @@ export default function Home() {
     setError(null);
     setResults(null);
 
+    const payload = {
+      token,
+      partner,
+      customer,
+      associationLabelId: associationLabel,
+      portalId,
+    };
+    console.log("[ui] Submitting /api/create with:", JSON.stringify({
+      ...payload,
+      token: `${token.slice(0, 12)}...(len:${token.length})`,
+    }, null, 2));
+
     try {
       const res = await fetch("/api/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          partner,
-          customer,
-          associationLabelId: associationLabel,
-          portalId,
-        }),
+        body: JSON.stringify(payload),
       });
+      console.log("[ui] /api/create response status:", res.status);
       const data = await res.json();
+      console.log("[ui] /api/create response data:", JSON.stringify(data, null, 2));
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       setResults(data.created);
     } catch (e: any) {
+      console.error("[ui] /api/create error:", e.message);
       setError(e.message);
     } finally {
       setLoading(false);

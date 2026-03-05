@@ -19,8 +19,13 @@ type CreatedEntity = {
  * then links contacts→companies and partner company↔customer company.
  */
 export async function POST(req: NextRequest) {
+  console.log("[create] POST /api/create called");
   try {
     const body = await req.json();
+    console.log("[create] Request body:", JSON.stringify({
+      ...body,
+      token: body.token ? `${body.token.slice(0, 12)}...(len:${body.token.length})` : "MISSING",
+    }, null, 2));
     const {
       token,
       partner,
@@ -36,26 +41,31 @@ export async function POST(req: NextRequest) {
     } = body;
 
     if (!token) {
+      console.log("[create] ERROR: No token provided");
       return NextResponse.json({ error: "Token required" }, { status: 400 });
     }
     if (!partner?.name || !partner?.contact?.email) {
+      console.log("[create] ERROR: Missing partner name or contact email");
       return NextResponse.json(
         { error: "Partner company name and contact email are required" },
         { status: 400 }
       );
     }
     if (!customer?.name || !customer?.contact?.email) {
+      console.log("[create] ERROR: Missing customer name or contact email");
       return NextResponse.json(
         { error: "Customer company name and contact email are required" },
         { status: 400 }
       );
     }
     if (!associationLabelId) {
+      console.log("[create] ERROR: Missing associationLabelId");
       return NextResponse.json(
         { error: "Association label ID is required" },
         { status: 400 }
       );
     }
+    console.log("[create] Validation passed. associationLabelId:", associationLabelId, "portalId:", portalId);
 
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -69,12 +79,14 @@ export async function POST(req: NextRequest) {
         : `#${type}-${id}`;
 
     // ── 1. Create partner company ──
+    console.log("[create] Step 1: Creating partner company:", partner.name);
     const partnerCompany = await createCompany(
       headers,
       partner.name,
       partner.domain,
       "partner"
     );
+    console.log("[create] Step 1 done. Partner company ID:", partnerCompany.id);
     created.push({
       type: "Partner Company",
       id: partnerCompany.id,
@@ -83,11 +95,13 @@ export async function POST(req: NextRequest) {
     });
 
     // ── 2. Create partner contact + associate to company ──
+    console.log("[create] Step 2: Creating partner contact:", partner.contact.email, "→ company", partnerCompany.id);
     const partnerContact = await createContact(
       headers,
       partner.contact,
       partnerCompany.id
     );
+    console.log("[create] Step 2 done. Partner contact ID:", partnerContact.id);
     created.push({
       type: "Partner Contact",
       id: partnerContact.id,
@@ -96,12 +110,14 @@ export async function POST(req: NextRequest) {
     });
 
     // ── 3. Create customer company ──
+    console.log("[create] Step 3: Creating customer company:", customer.name);
     const customerCompany = await createCompany(
       headers,
       customer.name,
       customer.domain,
       "customer"
     );
+    console.log("[create] Step 3 done. Customer company ID:", customerCompany.id);
     created.push({
       type: "Customer Company",
       id: customerCompany.id,
@@ -110,11 +126,13 @@ export async function POST(req: NextRequest) {
     });
 
     // ── 4. Create customer contact + associate to company ──
+    console.log("[create] Step 4: Creating customer contact:", customer.contact.email, "→ company", customerCompany.id);
     const customerContact = await createContact(
       headers,
       customer.contact,
       customerCompany.id
     );
+    console.log("[create] Step 4 done. Customer contact ID:", customerContact.id);
     created.push({
       type: "Customer Contact",
       id: customerContact.id,
@@ -123,12 +141,14 @@ export async function POST(req: NextRequest) {
     });
 
     // ── 5. Associate partner company ↔ customer company with label ──
+    console.log("[create] Step 5: Associating companies", partnerCompany.id, "↔", customerCompany.id, "with label", associationLabelId);
     await associateCompanies(
       headers,
       partnerCompany.id,
       customerCompany.id,
       associationLabelId
     );
+    console.log("[create] Step 5 done. Association created.");
     created.push({
       type: "Association",
       id: `${partnerCompany.id}↔${customerCompany.id}`,
@@ -136,9 +156,10 @@ export async function POST(req: NextRequest) {
       url: recordUrl("company", partnerCompany.id),
     });
 
+    console.log("[create] All steps complete. Created entities:", JSON.stringify(created, null, 2));
     return NextResponse.json({ created });
   } catch (e: any) {
-    console.error("Create error:", e);
+    console.error("[create] Unhandled exception:", e.message, e.stack);
     return NextResponse.json(
       { error: e.message || "Internal error" },
       { status: 500 }
@@ -153,15 +174,26 @@ async function hubspotFetch(
   headers: Record<string, string>,
   body: any
 ) {
+  console.log("[hubspotFetch] POST", url);
+  console.log("[hubspotFetch] Request body:", JSON.stringify(body, null, 2));
   const res = await fetch(url, {
     method: "POST",
     headers,
     body: JSON.stringify(body),
   });
-  const data = await res.json();
+  const text = await res.text();
+  console.log("[hubspotFetch] Response status:", res.status, res.statusText);
+  console.log("[hubspotFetch] Response body:", text);
+  let data: any;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`HubSpot returned non-JSON (${res.status}): ${text.slice(0, 200)}`);
+  }
   if (!res.ok) {
     const msg =
       data?.message || data?.errors?.[0]?.message || `HTTP ${res.status}`;
+    console.error("[hubspotFetch] ERROR:", msg, "Full response:", JSON.stringify(data, null, 2));
     throw new Error(`HubSpot API error: ${msg}`);
   }
   return data;
