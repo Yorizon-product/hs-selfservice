@@ -152,9 +152,9 @@ async function createCompany(
   headers: Record<string, string>,
   name: string,
   domain: string,
-  companytype: "partner" | "customer"
+  type: "partner" | "customer"
 ) {
-  const properties: Record<string, string> = { name, companytype };
+  const properties: Record<string, string> = { name, type };
   if (domain) properties.domain = domain;
   return hubspotFetch(`${HUBSPOT_API}/crm/v3/objects/companies`, headers, { properties });
 }
