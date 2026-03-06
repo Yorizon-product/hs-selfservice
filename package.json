@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lighthouse": "lhci autorun",
+    "lighthouse:a11y": "node scripts/lighthouse-a11y.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^1.6.1",
@@ -16,11 +18,14 @@
     "react-dom": "^18.3.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.0",
+    "lighthouse": "^13.0.3",
     "postcss": "^8.4.0",
+    "puppeteer": "^24.38.0",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.0.0"
   }
