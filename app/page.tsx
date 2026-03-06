@@ -28,7 +28,7 @@ const emptyCompany = (): CompanyFields => ({
   contact: emptyContact(),
 });
 
-const APP_VERSION = "0.6.1";
+const APP_VERSION = "0.6.2";
 
 // Random data pools
 const FIRST_NAMES = ["Alex", "Jordan", "Sam", "Taylor", "Casey", "Morgan", "Riley", "Quinn", "Avery", "Dakota"];
@@ -115,6 +115,7 @@ export default function Home() {
   const [portalRole, setPortalRole] = useState("Admin-RW");
 
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [results, setResults] = useState<CreatedEntity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -172,6 +173,28 @@ export default function Home() {
     else setCustomer(company);
   };
 
+  const startCooldown = () => {
+    setCooldown(10);
+    const interval = setInterval(() => {
+      setCooldown((c) => {
+        if (c <= 1) { clearInterval(interval); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const friendlyError = (msg: string): string => {
+    if (msg.includes("502") || msg.includes("Bad Gateway"))
+      return "HubSpot is temporarily unreachable (502). This is on their end — please try again in a moment.";
+    if (msg.includes("503") || msg.includes("Service Unavailable"))
+      return "HubSpot is temporarily unavailable (503). Please try again shortly.";
+    if (msg.includes("429") || msg.includes("rate limit"))
+      return "Too many requests — HubSpot rate limit hit. Please wait before retrying.";
+    if (msg.includes("non-JSON"))
+      return "HubSpot returned an unexpected response. Their API may be experiencing issues — try again shortly.";
+    return msg;
+  };
+
   const handleSubmit = async () => {
     if (loading) return; // prevent double-click
     setLoading(true);
@@ -200,7 +223,8 @@ export default function Home() {
       setPartner(emptyCompany());
       setCustomer(emptyCompany());
     } catch (e: any) {
-      setError(e.message);
+      setError(friendlyError(e.message));
+      startCooldown();
     } finally {
       setLoading(false);
     }
@@ -429,12 +453,16 @@ export default function Home() {
             {/* Submit */}
             <button
               onClick={handleSubmit}
-              disabled={!isValid || loading}
+              disabled={!isValid || loading || cooldown > 0}
               className="w-full min-h-[44px] py-3 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all
                 bg-[var(--bg-primary)] text-[var(--text-on-primary)] hover:opacity-90
                 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating entities..." : "Create all entities"}
+              {loading
+                ? "Creating entities..."
+                : cooldown > 0
+                  ? `Retry in ${cooldown}s`
+                  : "Create all entities"}
             </button>
 
             {/* Error */}
