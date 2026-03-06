@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 type ContactFields = {
   firstname: string;
@@ -28,7 +28,7 @@ const emptyCompany = (): CompanyFields => ({
   contact: emptyContact(),
 });
 
-const APP_VERSION = "0.6.9";
+const APP_VERSION = "0.7.0";
 
 // Random data pools
 const FIRST_NAMES = ["Alex", "Jordan", "Sam", "Taylor", "Casey", "Morgan", "Riley", "Quinn", "Avery", "Dakota"];
@@ -116,10 +116,16 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [results, setResults] = useState<CreatedEntity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const { theme, cycle: cycleTheme } = useTheme();
+
+  // Clean up cooldown interval on unmount
+  useEffect(() => {
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, []);
 
   // Check if user already identified
   useEffect(() => {
@@ -127,23 +133,14 @@ export default function Home() {
       .then(async (r) => {
         if (!r.ok) return;
         const data = await r.json();
-        if (data.loggedIn) setUserEmail(data.userEmail);
+        if (data.loggedIn) {
+          setUserEmail(data.userEmail);
+          if (data.portalId) setPortalId(data.portalId);
+        }
       })
       .catch(() => {})
       .finally(() => setAuthLoading(false));
   }, []);
-
-  // Fetch portal ID when identified
-  useEffect(() => {
-    if (!userEmail) return;
-    fetch("/api/labels")
-      .then(async (r) => {
-        const data = await r.json();
-        if (!r.ok) return;
-        if (data.portalId) setPortalId(data.portalId);
-      })
-      .catch(() => {});
-  }, [userEmail]);
 
   const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
@@ -174,10 +171,11 @@ export default function Home() {
   };
 
   const startCooldown = () => {
+    if (cooldownRef.current) clearInterval(cooldownRef.current);
     setCooldown(10);
-    const interval = setInterval(() => {
+    cooldownRef.current = setInterval(() => {
       setCooldown((c) => {
-        if (c <= 1) { clearInterval(interval); return 0; }
+        if (c <= 1) { clearInterval(cooldownRef.current!); cooldownRef.current = null; return 0; }
         return c - 1;
       });
     }, 1000);
@@ -272,7 +270,7 @@ export default function Home() {
           </h1>
           <p className="text-[var(--text-muted)] mt-2 text-sm leading-relaxed">
             Creates a partner company + contact, a customer company + contact,
-            and links them with an association label.
+            and links them with a Parent Company association.
           </p>
         </div>
 

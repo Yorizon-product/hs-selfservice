@@ -6,7 +6,23 @@ export async function GET() {
   if (!session.userEmail) {
     return NextResponse.json({ loggedIn: false });
   }
-  return NextResponse.json({ loggedIn: true, userEmail: session.userEmail });
+
+  // Fetch portal ID for building HubSpot record URLs
+  let portalId: string | null = null;
+  const token = process.env.HUBSPOT_TOKEN;
+  if (token) {
+    try {
+      const res = await fetch("https://api.hubapi.com/account-info/v3/details", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        portalId = String(data.portalId);
+      }
+    } catch {}
+  }
+
+  return NextResponse.json({ loggedIn: true, userEmail: session.userEmail, portalId });
 }
 
 export async function POST(req: NextRequest) {

@@ -25,13 +25,13 @@ function buildAndStart() {
       env: testEnv,
       stdio: ["ignore", "pipe", "pipe"],
     });
+    const timeout = setTimeout(() => reject(new Error("Server start timeout")), 30000);
     const onData = (d) => {
-      if (d.toString().includes("Ready")) resolve(proc);
+      if (d.toString().includes("Ready")) { clearTimeout(timeout); resolve(proc); }
     };
     proc.stdout.on("data", onData);
     proc.stderr.on("data", onData);
-    proc.on("error", reject);
-    setTimeout(() => reject(new Error("Server start timeout")), 30000);
+    proc.on("error", (e) => { clearTimeout(timeout); reject(e); });
   });
 }
 
