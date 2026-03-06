@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type ContactFields = {
   firstname: string;
@@ -75,6 +75,40 @@ function generateRandomCompany(userEmail: string, role: "partner" | "customer"):
   };
 }
 
+type Theme = "system" | "light" | "dark";
+
+function useTheme() {
+  const [theme, setThemeState] = useState<Theme>("system");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme") as Theme | null;
+    if (stored === "light" || stored === "dark") {
+      setThemeState(stored);
+    }
+  }, []);
+
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t);
+    const html = document.documentElement;
+    html.classList.remove("dark", "light");
+    if (t === "dark") {
+      html.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else if (t === "light") {
+      html.classList.add("light");
+      localStorage.setItem("theme", "light");
+    } else {
+      localStorage.removeItem("theme");
+    }
+  }, []);
+
+  const cycle = useCallback(() => {
+    setTheme(theme === "system" ? "light" : theme === "light" ? "dark" : "system");
+  }, [theme, setTheme]);
+
+  return { theme, cycle };
+}
+
 export default function Home() {
   const [authLoading, setAuthLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -90,6 +124,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<CreatedEntity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const { theme, cycle: cycleTheme } = useTheme();
 
   // Check if user already identified
   useEffect(() => {
@@ -217,17 +253,20 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex items-start justify-center px-4 py-12 md:py-20">
+    <main id="main-content" className="min-h-screen flex items-start justify-center px-4 py-12 md:py-20">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="animate-in mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-2 h-2 rounded-full bg-[var(--accent)]" />
-            <span className="text-xs font-mono uppercase tracking-widest text-[var(--text-muted)]">
-              HubSpot Entity Creator · v{APP_VERSION}
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-[var(--lime-decorative)]" />
+              <span className="text-xs font-mono uppercase tracking-widest text-[var(--text-muted)]">
+                HubSpot Entity Creator · v{APP_VERSION}
+              </span>
+            </div>
+            <ThemeToggle theme={theme} onCycle={cycleTheme} />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-heading text-[var(--text-heading)]">
             Create test entities
           </h1>
           <p className="text-[var(--text-muted)] mt-2 text-sm leading-relaxed">
@@ -256,8 +295,8 @@ export default function Home() {
               <button
                 onClick={handleIdentify}
                 disabled={!isValidEmail(emailInput.trim())}
-                className="mt-4 w-full py-2.5 rounded-lg font-medium text-sm transition-all
-                  bg-[var(--accent)] text-white hover:brightness-110
+                className="mt-4 w-full min-h-[44px] py-2.5 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all
+                  bg-[var(--bg-primary)] text-[var(--text-on-primary)] hover:opacity-90
                   disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Continue
@@ -267,9 +306,9 @@ export default function Home() {
         ) : (
           <>
             {/* User indicator */}
-            <div className="animate-in flex items-center justify-between mb-6 px-3 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)]">
+            <div className="animate-in flex items-center justify-between mb-6 px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)]">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)]" />
                 <span className="text-xs font-mono text-[var(--text-muted)]">
                   {userEmail}
                   {portalId ? ` · Portal ${portalId}` : ""}
@@ -277,7 +316,7 @@ export default function Home() {
               </div>
               <button
                 onClick={handleSignOut}
-                className="text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+                className="text-xs font-button min-h-[44px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 Switch user
               </button>
@@ -291,9 +330,9 @@ export default function Home() {
                 action={
                   <button
                     onClick={() => handleRandomize("partner")}
-                    className="text-xs px-2.5 py-1 rounded-md font-medium transition-all
-                      bg-[var(--surface-raised)] border border-[var(--border)]
-                      text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--accent)]"
+                    className="text-xs px-2.5 py-1 rounded-md font-button min-h-[44px] font-medium transition-all
+                      bg-[var(--bg-section)] border border-[var(--border-default)]
+                      text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-accent)]"
                   >
                     Randomize
                   </button>
@@ -343,9 +382,9 @@ export default function Home() {
                 action={
                   <button
                     onClick={() => handleRandomize("customer")}
-                    className="text-xs px-2.5 py-1 rounded-md font-medium transition-all
-                      bg-[var(--surface-raised)] border border-[var(--border)]
-                      text-[var(--text-muted)] hover:text-[var(--text)] hover:border-[var(--accent)]"
+                    className="text-xs px-2.5 py-1 rounded-md font-button min-h-[44px] font-medium transition-all
+                      bg-[var(--bg-section)] border border-[var(--border-default)]
+                      text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-accent)]"
                   >
                     Randomize
                   </button>
@@ -396,7 +435,7 @@ export default function Home() {
                   </p>
                 ) : labels.length > 0 ? (
                   <div>
-                    <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">
+                    <label className="block text-[14px] font-medium text-[var(--text-muted)] mb-1.5">
                       Partner &rarr; Customer label
                     </label>
                     <select
@@ -404,9 +443,9 @@ export default function Home() {
                       onChange={(e) =>
                         setAssociationLabel(Number(e.target.value))
                       }
-                      className="w-full px-3 py-2 rounded-lg text-sm
-                        bg-[var(--surface-raised)] border border-[var(--border)]
-                        text-[var(--text)] transition-colors"
+                      className="w-full px-3 h-[50px] rounded-[5px] text-[16px]
+                        bg-[var(--bg-input)] border border-[var(--border-default)]
+                        text-[var(--text-primary)] transition-colors"
                     >
                       {labels.map((l) => (
                         <option key={l.typeId} value={l.typeId}>
@@ -433,8 +472,8 @@ export default function Home() {
             <button
               onClick={handleSubmit}
               disabled={!isValid || loading}
-              className="w-full py-3 rounded-lg font-semibold text-sm transition-all
-                bg-[var(--accent)] text-white hover:brightness-110
+              className="w-full min-h-[44px] py-3 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all
+                bg-[var(--bg-primary)] text-[var(--text-on-primary)] hover:opacity-90
                 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {loading ? "Creating entities..." : "Create all entities"}
@@ -442,8 +481,8 @@ export default function Home() {
 
             {/* Error */}
             {error && (
-              <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-[var(--error)] font-mono">{error}</p>
+              <div className="mt-4 p-4 rounded-lg bg-[var(--color-error)]/10 border border-[var(--color-error)]/20">
+                <p className="text-sm text-[var(--color-error)] font-mono">{error}</p>
               </div>
             )}
 
@@ -451,8 +490,8 @@ export default function Home() {
             {results && (
               <div className="mt-6 animate-in">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--success)]" />
-                  <span className="text-xs font-mono uppercase tracking-widest text-[var(--success)]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)]" />
+                  <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-success)]">
                     Created successfully
                   </span>
                 </div>
@@ -464,8 +503,8 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3 rounded-lg
-                        bg-[var(--surface)] border border-[var(--border)]
-                        hover:border-[var(--accent)] transition-colors group"
+                        bg-[var(--bg-card)] border border-[var(--border-default)]
+                        hover:border-[var(--text-accent)] hover:shadow-md transition-all group"
                     >
                       <div>
                         <span className="text-xs font-mono text-[var(--text-muted)] uppercase">
@@ -473,7 +512,7 @@ export default function Home() {
                         </span>
                         <p className="text-sm font-medium">{r.name}</p>
                       </div>
-                      <span className="text-xs font-mono text-[var(--text-muted)] group-hover:text-[var(--accent)] transition-colors">
+                      <span className="text-xs font-mono text-[var(--text-muted)] group-hover:text-[var(--text-accent)] transition-colors">
                         {r.id} &rarr;
                       </span>
                     </a>
@@ -490,6 +529,40 @@ export default function Home() {
 
 /* Reusable components */
 
+function ThemeToggle({ theme, onCycle }: { theme: Theme; onCycle: () => void }) {
+  return (
+    <button
+      onClick={onCycle}
+      aria-label={`Theme: ${theme}. Click to cycle.`}
+      title={`Theme: ${theme}`}
+      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg
+        border border-[var(--border-default)] text-[var(--text-muted)]
+        hover:text-[var(--text-primary)] hover:border-[var(--text-accent)] transition-colors"
+    >
+      {theme === "dark" ? (
+        /* Moon icon */
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      ) : theme === "light" ? (
+        /* Sun icon */
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        </svg>
+      ) : (
+        /* Monitor/system icon */
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 function Section({
   title,
   badge,
@@ -502,12 +575,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 p-5 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+    <div className="mb-6 p-5 rounded-lg shadow-sm bg-[var(--bg-card)] border border-[var(--border-default)]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
+          <h2 className="text-sm font-semibold tracking-tight font-heading text-[var(--text-heading)]">{title}</h2>
           {badge && (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-raised)] text-[var(--text-muted)] border border-[var(--border)]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-pill bg-[var(--bg-section)] text-[var(--text-muted)] border border-[var(--border-default)]">
               {badge}
             </span>
           )}
@@ -536,7 +609,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-[var(--text-muted)] mb-1.5">
+      <label className="block text-[14px] font-medium text-[var(--text-muted)] mb-1.5">
         {label}
       </label>
       <input
@@ -544,9 +617,9 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 rounded-lg text-sm
-          bg-[var(--surface-raised)] border border-[var(--border)]
-          text-[var(--text)] placeholder:text-[var(--text-muted)]/40
+        className={`w-full px-3 h-[50px] rounded-[5px] text-[16px]
+          bg-[var(--bg-input)] border border-[var(--border-default)]
+          text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/40
           transition-colors ${mono ? "font-mono text-xs" : ""}`}
       />
     </div>

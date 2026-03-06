@@ -1,38 +1,143 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Expletus+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+/* Yorizon proprietary font */
+@font-face {
+  font-family: "Yorizon";
+  src: url("https://cdn2.hubspot.net/hubfs/25437088/Yorizon-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yorizon";
+  src: url("https://cdn2.hubspot.net/hubfs/25437088/Yorizon-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yorizon";
+  src: url("https://cdn2.hubspot.net/hubfs/25437088/Yorizon-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Yorizon";
+  src: url("https://cdn2.hubspot.net/hubfs/25437088/Yorizon-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode (default) */
 :root {
-  --bg: #0a0a0b;
-  --surface: #141416;
-  --surface-raised: #1c1c20;
-  --border: #2a2a2e;
-  --border-focus: #f97316;
-  --text: #e4e4e7;
-  --text-muted: #71717a;
-  --accent: #f97316;
-  --accent-dim: #c2410c;
-  --success: #22c55e;
-  --error: #ef4444;
+  --bg-page: #FFFFFF;
+  --bg-section: #F2F2F2;
+  --bg-primary: #3E4227;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #3E4227;
+  --bg-input: #FFFFFF;
+  --text-primary: #000000;
+  --text-heading: #3E4227;
+  --text-muted: #767676;
+  --text-accent: #607400;
+  --text-on-primary: #FFFFFF;
+  --border-default: #949494;
+  --border-subtle: #D0D0D0;
+  --focus-ring: #3E4227;
+  --color-error: #D32F2F;
+  --color-success: #607400;
+  --lime-decorative: #DEFE19;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+}
+
+/* Dark mode — OS preference */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --bg-page: #1C2010;
+    --bg-section: #262B14;
+    --bg-primary: #DEFE19;
+    --bg-card: #333624;
+    --bg-card-hover: #3E4227;
+    --bg-input: #333624;
+    --text-primary: #FFFFFF;
+    --text-heading: #DEFE19;
+    --text-muted: #9C9C9C;
+    --text-accent: #94AC00;
+    --text-on-primary: #1C2010;
+    --border-default: #7D7D7D;
+    --border-subtle: #4A4A4A;
+    --focus-ring: #DEFE19;
+    --color-error: #FF6B6B;
+    --color-success: #94AC00;
+    --lime-decorative: #DEFE19;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Dark mode — manual toggle via class */
+html.dark {
+  --bg-page: #1C2010;
+  --bg-section: #262B14;
+  --bg-primary: #DEFE19;
+  --bg-card: #333624;
+  --bg-card-hover: #3E4227;
+  --bg-input: #333624;
+  --text-primary: #FFFFFF;
+  --text-heading: #DEFE19;
+  --text-muted: #9C9C9C;
+  --text-accent: #94AC00;
+  --text-on-primary: #1C2010;
+  --border-default: #7D7D7D;
+  --border-subtle: #4A4A4A;
+  --focus-ring: #DEFE19;
+  --color-error: #FF6B6B;
+  --color-success: #94AC00;
+  --lime-decorative: #DEFE19;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Smooth focus rings */
+/* Focus styles */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 input:focus, select:focus {
   outline: none;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgba(62, 66, 39, 0.15);
 }
 
-/* Subtle entry animation */
+html.dark input:focus, html.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(222, 254, 25, 0.15);
+}
+
+/* Animations */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -43,3 +148,32 @@ input:focus, select:focus {
 .animate-in-delay-1 { animation-delay: 0.05s; }
 .animate-in-delay-2 { animation-delay: 0.1s; }
 .animate-in-delay-3 { animation-delay: 0.15s; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: var(--bg-primary);
+  color: var(--text-on-primary);
+  border-radius: 0 0 8px 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
