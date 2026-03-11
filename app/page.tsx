@@ -28,7 +28,7 @@ const emptyCompany = (): CompanyFields => ({
   contact: emptyContact(),
 });
 
-const APP_VERSION = "0.8.0";
+const APP_VERSION = "0.9.0";
 
 // Random data pools
 const FIRST_NAMES = ["Alex", "Jordan", "Sam", "Taylor", "Casey", "Morgan", "Riley", "Quinn", "Avery", "Dakota"];
@@ -236,7 +236,7 @@ export default function Home() {
   if (authLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-sm text-[var(--text-muted)]">Loading...</p>
+        <p className="text-sm text-[hsl(var(--muted-foreground))]">Loading...</p>
       </main>
     );
   }
@@ -248,17 +248,17 @@ export default function Home() {
         <div className="animate-in mb-10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-[var(--lime-decorative)]" />
-              <span className="text-xs font-mono uppercase tracking-widest text-[var(--text-muted)]">
+              <div className="w-2 h-2 rounded-full bg-[hsl(var(--accent))]" />
+              <span className="text-xs font-mono uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
                 HubSpot Entity Creator · v{APP_VERSION}
               </span>
             </div>
             <ThemeToggle theme={theme} onCycle={cycleTheme} />
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-heading text-[var(--text-heading)]">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-heading text-[hsl(var(--card-foreground))]">
             Create test entities
           </h1>
-          <p className="text-[var(--text-muted)] mt-2 text-sm leading-relaxed">
+          <p className="text-[hsl(var(--muted-foreground))] mt-2 text-sm leading-relaxed">
             Creates a partner company + contact, a customer company + contact,
             and links them with a Parent Company association.
           </p>
@@ -268,14 +268,14 @@ export default function Home() {
         {!loggedIn ? (
           <div className="animate-in animate-in-delay-1">
             <Section title="Connect to HubSpot">
-              <p className="text-sm text-[var(--text-muted)] mb-4">
+              <p className="text-sm text-[hsl(var(--muted-foreground))] mb-4">
                 Sign in with your HubSpot account to get started. This grants
                 the tool permission to create entities in your portal.
               </p>
               <a
                 href="/api/auth/install"
                 className="block w-full min-h-[44px] py-2.5 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all text-center
-                  bg-[var(--bg-primary)] text-[var(--text-on-primary)] hover:opacity-90"
+                  bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90"
               >
                 Connect to HubSpot
               </a>
@@ -284,17 +284,17 @@ export default function Home() {
         ) : (
           <>
             {/* User indicator */}
-            <div className="animate-in flex items-center justify-between mb-6 px-3 py-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border-default)]">
+            <div className="animate-in flex items-center justify-between mb-6 px-3 py-2 rounded-lg bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)]" />
-                <span className="text-xs font-mono text-[var(--text-muted)]">
+                <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))]" />
+                <span className="text-xs font-mono text-[hsl(var(--muted-foreground))]">
                   {userEmail || "Connected"}
                   {portalId ? ` · Portal ${portalId}` : ""}
                 </span>
               </div>
               <button
                 onClick={handleSignOut}
-                className="text-xs font-button min-h-[44px] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                className="text-xs font-button min-h-[44px] text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
               >
                 Disconnect
               </button>
@@ -309,8 +309,8 @@ export default function Home() {
                   <button
                     onClick={() => handleRandomize("partner")}
                     className="text-xs px-2.5 py-1 rounded-md font-button min-h-[44px] font-medium transition-all
-                      bg-[var(--bg-section)] border border-[var(--border-default)]
-                      text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-accent)]"
+                      bg-[hsl(var(--muted))] border border-[hsl(var(--border))]
+                      text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]"
                   >
                     Randomize
                   </button>
@@ -361,8 +361,8 @@ export default function Home() {
                   <button
                     onClick={() => handleRandomize("customer")}
                     className="text-xs px-2.5 py-1 rounded-md font-button min-h-[44px] font-medium transition-all
-                      bg-[var(--bg-section)] border border-[var(--border-default)]
-                      text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-accent)]"
+                      bg-[hsl(var(--muted))] border border-[hsl(var(--border))]
+                      text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]"
                   >
                     Randomize
                   </button>
@@ -409,15 +409,15 @@ export default function Home() {
             <div className="animate-in animate-in-delay-3">
               <Section title="Portal Role">
                 <div>
-                  <label className="block text-[14px] font-medium text-[var(--text-muted)] mb-1.5">
+                  <label className="block text-[14px] font-medium text-[hsl(var(--muted-foreground))] mb-1.5">
                     Role assigned to both contacts
                   </label>
                   <select
                     value={portalRole}
                     onChange={(e) => setPortalRole(e.target.value)}
                     className="w-full px-3 h-[50px] rounded-[5px] text-[16px]
-                      bg-[var(--bg-input)] border border-[var(--border-default)]
-                      text-[var(--text-primary)] transition-colors"
+                      bg-[hsl(var(--card))] border border-[hsl(var(--border))]
+                      text-[hsl(var(--foreground))] transition-colors"
                   >
                     <option value="Admin-RW">Administrator</option>
                     <option value="User-RW">User - Read &amp; Write</option>
@@ -432,7 +432,7 @@ export default function Home() {
               onClick={handleSubmit}
               disabled={!isValid || loading || cooldown > 0}
               className="w-full min-h-[44px] py-3 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all
-                bg-[var(--bg-primary)] text-[var(--text-on-primary)] hover:opacity-90
+                bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90
                 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               {loading
@@ -444,8 +444,8 @@ export default function Home() {
 
             {/* Error */}
             {error && (
-              <div className="mt-4 p-4 rounded-lg bg-[var(--color-error)]/10 border border-[var(--color-error)]/20">
-                <p className="text-sm text-[var(--color-error)] font-mono">{error}</p>
+              <div className="mt-4 p-4 rounded-lg bg-[hsl(var(--destructive))]/10 border border-[hsl(var(--destructive))]/20">
+                <p className="text-sm text-[hsl(var(--destructive))] font-mono">{error}</p>
               </div>
             )}
 
@@ -453,8 +453,8 @@ export default function Home() {
             {results && (
               <div className="mt-6 animate-in">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)]" />
-                  <span className="text-xs font-mono uppercase tracking-widest text-[var(--color-success)]">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--success))]" />
+                  <span className="text-xs font-mono uppercase tracking-widest text-[hsl(var(--success))]">
                     Created successfully
                   </span>
                 </div>
@@ -466,16 +466,16 @@ export default function Home() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3 rounded-lg
-                        bg-[var(--bg-card)] border border-[var(--border-default)]
-                        hover:border-[var(--text-accent)] hover:shadow-md transition-all group"
+                        bg-[hsl(var(--card))] border border-[hsl(var(--border))]
+                        hover:border-[hsl(var(--accent))] hover:shadow-md transition-all group"
                     >
                       <div>
-                        <span className="text-xs font-mono text-[var(--text-muted)] uppercase">
+                        <span className="text-xs font-mono text-[hsl(var(--muted-foreground))] uppercase">
                           {r.type}
                         </span>
                         <p className="text-sm font-medium">{r.name}</p>
                       </div>
-                      <span className="text-xs font-mono text-[var(--text-muted)] group-hover:text-[var(--text-accent)] transition-colors">
+                      <span className="text-xs font-mono text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--accent))] transition-colors">
                         {r.id} &rarr;
                       </span>
                     </a>
@@ -484,8 +484,8 @@ export default function Home() {
                 <button
                   onClick={handleSignOut}
                   className="mt-6 w-full min-h-[44px] py-3 rounded-pill font-button font-semibold text-sm uppercase tracking-wide transition-all
-                    bg-[var(--bg-section)] border border-[var(--border-default)]
-                    text-[var(--text-primary)] hover:border-[var(--text-accent)]"
+                    bg-[hsl(var(--muted))] border border-[hsl(var(--border))]
+                    text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))]"
                 >
                   Start over
                 </button>
@@ -507,8 +507,8 @@ function ThemeToggle({ theme, onCycle }: { theme: Theme; onCycle: () => void }) 
       aria-label={`Theme: ${theme}. Click to cycle.`}
       title={`Theme: ${theme}`}
       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg
-        border border-[var(--border-default)] text-[var(--text-muted)]
-        hover:text-[var(--text-primary)] hover:border-[var(--text-accent)] transition-colors"
+        border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]
+        hover:text-[hsl(var(--foreground))] hover:border-[hsl(var(--accent))] transition-colors"
     >
       {theme === "dark" ? (
         /* Moon icon */
@@ -546,12 +546,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-6 p-5 rounded-lg shadow-sm bg-[var(--bg-card)] border border-[var(--border-default)]">
+    <div className="mb-6 p-5 rounded-lg shadow-sm bg-[hsl(var(--card))] border border-[hsl(var(--border))]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-semibold tracking-tight font-heading text-[var(--text-heading)]">{title}</h2>
+          <h2 className="text-sm font-semibold tracking-tight font-heading text-[hsl(var(--card-foreground))]">{title}</h2>
           {badge && (
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-pill bg-[var(--bg-section)] text-[var(--text-muted)] border border-[var(--border-default)]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-pill bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] border border-[hsl(var(--border))]">
               {badge}
             </span>
           )}
@@ -580,7 +580,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="block text-[14px] font-medium text-[var(--text-muted)] mb-1.5">
+      <label className="block text-[14px] font-medium text-[hsl(var(--muted-foreground))] mb-1.5">
         {label}
       </label>
       <input
@@ -589,8 +589,8 @@ function Input({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={`w-full px-3 h-[50px] rounded-[5px] text-[16px]
-          bg-[var(--bg-input)] border border-[var(--border-default)]
-          text-[var(--text-primary)] placeholder:text-[var(--text-muted)]/40
+          bg-[hsl(var(--card))] border border-[hsl(var(--border))]
+          text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))]/40
           transition-colors ${mono ? "font-mono text-xs" : ""}`}
       />
     </div>
