@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { faker } from "@faker-js/faker/locale/de";
 
 type ContactFields = {
   firstname: string;
@@ -28,35 +29,18 @@ const emptyCompany = (): CompanyFields => ({
   contact: emptyContact(),
 });
 
-const APP_VERSION = "0.9.0";
-
-// Random data pools
-const FIRST_NAMES = ["Alex", "Jordan", "Sam", "Taylor", "Casey", "Morgan", "Riley", "Quinn", "Avery", "Dakota"];
-const LAST_NAMES = ["Smith", "Johnson", "Brown", "Garcia", "Miller", "Davis", "Wilson", "Moore", "Clark", "Hall"];
-const COMPANY_PREFIXES = ["Acme", "Nova", "Apex", "Vortex", "Stellar", "Nimbus", "Prism", "Helix", "Cobalt", "Zenith"];
-const COMPANY_SUFFIXES = ["Corp", "Solutions", "Industries", "Tech", "Group", "Labs", "Systems", "Digital", "Partners", "Global"];
-
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function randomSlug(): string {
-  return Math.random().toString(36).slice(2, 6);
-}
+const APP_VERSION = "0.9.1";
 
 function generateRandomCompany(userEmail: string | null, role: "partner" | "customer"): CompanyFields {
-  const first = pick(FIRST_NAMES);
-  const last = pick(LAST_NAMES);
-  const prefix = pick(COMPANY_PREFIXES);
-  const suffix = pick(COMPANY_SUFFIXES);
-  const slug = randomSlug();
-  const companyName = `${prefix} ${suffix}`;
-  const domain = `${prefix.toLowerCase()}-${slug}.test`;
+  const first = faker.person.firstName();
+  const last = faker.person.lastName();
+  const companyName = faker.company.name();
+  const slug = faker.string.alphanumeric(4);
+  const domain = `${faker.helpers.slugify(companyName).toLowerCase()}-${slug}.test`;
 
-  const tag = `${prefix.toLowerCase()}-${role}-${slug}`;
+  const tag = `${faker.helpers.slugify(companyName).toLowerCase()}-${role}-${slug}`;
   let contactEmail: string;
   if (userEmail && userEmail.includes("@")) {
-    // Plus-address: user+acme-partner-a3f2@domain.com
     const [localPart, domainPart] = userEmail.split("@");
     contactEmail = `${localPart}+${tag}@${domainPart}`;
   } else {

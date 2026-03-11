@@ -12,6 +12,7 @@
     "sync-theme": "node scripts/sync-theme.mjs"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.3.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.3.1",
